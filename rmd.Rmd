@@ -1,0 +1,86 @@
+---
+title: "Assignment 4: Modelling Mall Customers Data"
+author: "Sowmya"
+date: "2022-10-06"
+output: word_document
+---
+
+# Section 1
+
+The rise in the use of online stores has created a concern for the brick and motor stores and by extension the malls. Malls' owners find themselves at the risk of losing tenants, if they are unlikely to attract more people to the malls and help the brick and motor stores that rent spaces in their malls. In this project, linear regression modelling is used in the prediction of the spending score of customers that visits a mall. The model uses Age, Gender and Annual Income of the customers to predict their spending score. Through the model, the mall owners can target marketing and advertising of their their malls based on the information from the interpretation. 
+
+# Section 2
+
+The source of the data used for the linear regression model in this project is https://www.kaggle.com/datasets/shwetabh123/mall-customers. 
+
+# Section 3
+
+Data loading for the project used the following code. 
+
+```{r}
+#Loading Data
+library(tidyverse)
+Data <- read_csv("Mall_Customers.csv")
+
+```
+
+# Section 4
+
+The data summary showed that no NAs were present in any of the data variables. The summary also showed that there were 5 variables hence 5 columns; CustomerID, Genre, Age, Annual Income (k$) and Spending Score (1-100). From the length of the CustomerID variable, the data has 200 rows. The Age variable is shown to have a mean of 38.85 (approx. 39) with the minimum age = 18 and the maximum age = 70. The Annual Income variable (in thousands of dollar) has a mean of 60.56 with the minimum income = 15 and maximum income = 137. Also, the Spending Score variable is shown to have a mean of 50.20 with a minimum score = 1.00 and maximum score = 99.00. Frequency summary for the gender variable shows that data was collected for 112 females and 88 males.
+
+```{r}
+#Summary
+summary(Data)
+table(Data$Genre)
+```
+
+# Section 5
+
+The data was generally clean with possible data cleaning including removal of missing values for particularly the Annual Income variable; where the customers might have declined to provide information. The missing entries and data structures represents among the main problems associated with raw data. The data preparation conducted in this project involved the removal of the CustomerID variable, which was not used in the modelling. The columns were also renamed in the data to correspond to the actual information and simplify for calling in the model. Finally, the data was separated into training and testing sets in the ratio of 80:20 for the modelling. 
+
+```{r}
+#Data Preparation
+#Removing the customer ID variable
+Data <- Data %>% select(-CustomerID)
+#Renaming variables 
+colnames(Data) <- c("Gender", "Age", "Annual.Income", "Spending.Score")
+#Separating data into training and testing set
+set.seed(200)
+ind.train <- sample(1:200, 0.8*nrow(Data), replace = F) 
+set.train <- Data[ind.train, ]
+set.test <- Data[-ind.train, ]
+```
+
+# Section 6
+
+The linear regression modelling is a useful tool for the prediction of numerical outcomes in business problems. The model uses factors that are thought or identified to have influence on the numerical outcome for the prediction. In this project the spending score in the dependent variable (numerical outcome) while Gender, Age and Annual Income are the factors of interest and independent variables in the model. 
+
+# Section 7
+
+The modelling process and the model output are provided as follows below. The results show that the predictive model takes the following form of an equation:
+
+$Spending.Score = 72.39870 - 1.86839(GenderMale) - 0.52835(Age) - 0.02583(Annual Income)$
+
+```{r}
+#Linear Regression
+fit.linear <- lm(Spending.Score~., data = set.train)
+summary(fit.linear)
+
+```
+
+The check on the model performance above shows that the Adjusted R-Squared = 0.07492 implying that the model fitness is poor at 7.492%. The performance of the model prediction on the testing set presented below was low with the correlation between the observations and prediction = 0.1765.
+
+```{r}
+#Predictions
+Predict.linear <- predict(fit.linear, newdata = set.test[,-4])
+#Predictive Performance
+library(caret)
+R2(pred = Predict.linear, obs = set.test$Spending.Score)
+
+```
+
+# Section 8
+
+The model visualizations are not available for the linear regression modelling. A possible visualization would be a scatterplot of the Annual Income against the Spending Score with Age used as weight for the color of the data points. Two regression lines could be included in the plot for each gender. This would provide a means for representing the model on a visualization. 
+
+
